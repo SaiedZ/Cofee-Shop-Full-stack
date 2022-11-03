@@ -29,6 +29,28 @@ CORS(app)
         or appropriate status code indicating reason for failure
 '''
 
+@app.route('/drinks')
+def get_drinks():
+    '''Get all the drinks.
+
+    This is a public method. Not authorization or permissions are required.
+
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drinks is a list of short description of a drink
+        -if fail:
+            - status code 422
+    '''
+    try:
+        drinks = [
+            drink.short() for drink in Drink.query.all()
+        ]
+    except Exception:
+        abort(422)
+
+    return jsonify({"success": True, "drinks": drinks})
 
 '''
 @TODO implement endpoint
@@ -106,9 +128,28 @@ def unprocessable(error):
 @TODO implement error handler for 404
     error handler should conform to general task above
 '''
-
+@app.errorhandler(404)
+def not_found(error):
+    return (
+        jsonify(
+            {"success": False,
+                "error": 404,
+                "message": error.description}
+        ),
+        404,
+    )
 
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above
 '''
+@app.errorhandler(500)
+def internal_server_error(error):
+    return (
+        jsonify(
+            {"success": False,
+                "error": 500,
+                "message": "Internal Server Error"}
+        ),
+        500
+    )
