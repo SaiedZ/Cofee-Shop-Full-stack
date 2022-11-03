@@ -4,10 +4,13 @@ from sqlalchemy import exc
 import json
 from flask_cors import CORS
 
+from .utils import error_handlers
+
 from .database.models import db_drop_and_create_all, setup_db, Drink
 from .auth.auth import AuthError, requires_auth
 
 app = Flask(__name__)
+app.register_blueprint(error_handlers.blueprint)
 setup_db(app)
 CORS(app)
 
@@ -73,15 +76,45 @@ def get_drinks_detail(payload):
 
     return jsonify({"success": True, "drinks": drinks})
 
-'''
-@TODO implement endpoint
-    POST /drinks
-        it should create a new row in the drinks table
-        it should require the 'post:drinks' permission
-        it should contain the drink.long() data representation
-    returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
-        or appropriate status code indicating reason for failure
-'''
+
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def create_drink(payload):
+    '''Create a new drink.
+
+    auth:
+        require the 'post:drinks' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drink an array containing only the newly created drink
+    '''
+    data = request.get_json()
+    if data is None:
+        abort(400, 'The drink\'s title and recipe not found.')
+
+    try:
+        title, recipe = data['title'], data['recipe']
+    except ValueError:
+        abort(400, 'Drink data must contain title and recipe')
+
+    if not isinstance(recipe, dict):
+        abort(400, 'Recipe must be a json object')
+    print(recipe)
+    try:
+        new_drink = Drink(
+            title=title,
+            recipe=json.dumps([recipe]),
+        )
+        new_drink.insert()
+    except exc.IntegrityError:
+        abort(400, 'A drink with that title aldready exist')
+    except Exception:
+        abort(500)
+
+    return jsonify({"success": True, "drinks": [new_drink.long()]})
+
 
 
 '''
@@ -107,77 +140,3 @@ def get_drinks_detail(payload):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-
-
-# Error Handling
-'''
-Example error handling for unprocessable entity
-'''
-
-
-@app.errorhandler(422)
-def unprocessable(error):
-    return jsonify({
-        "success": False,
-        "error": 422,
-        "message": "unprocessable"
-    }), 422
-
-
-'''
-@TODO implement error handlers using the @app.errorhandler(error) decorator
-    each error handler should return (with approprate messages):
-             jsonify({
-                    "success": False,
-                    "error": 404,
-                    "message": "resource not found"
-                    }), 404
-
-'''
-
-'''
-@TODO implement error handler for 404
-    error handler should conform to general task above
-'''
-@app.errorhandler(404)
-def not_found(error):
-    return (
-        jsonify(
-            {"success": False,
-                "error": 404,
-                "message": error.description}
-        ),
-        404,
-    )
-
-
-@app.errorhandler(401)
-def unauthorized_error(error):
-    try:
-        message = error.description['description']
-    except Exception:
-        message = 'Unauthorized'
-    return (
-        jsonify(
-            {"success": False,
-                "error": 401,
-                "message": message}
-        ),
-        401
-    )
-
-
-'''
-@TODO implement error handler for AuthError
-    error handler should conform to general task above
-'''
-@app.errorhandler(500)
-def internal_server_error(error):
-    return (
-        jsonify(
-            {"success": False,
-                "error": 500,
-                "message": "Internal Server Error"}
-        ),
-        500
-    )
