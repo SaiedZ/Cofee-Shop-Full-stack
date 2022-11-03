@@ -1,12 +1,14 @@
+import os
 import json
 from flask import request, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-AUTH0_DOMAIN = 'saied-zouaoui.eu.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'coffeecityapi'
+
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+ALGORITHMS = os.getenv("ALGORITHMS")
+API_AUDIENCE = os.getenv("API_AUDIENCE")
 
 
 class AuthError(Exception):
