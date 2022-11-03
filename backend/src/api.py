@@ -92,14 +92,15 @@ def create_drink(payload):
         title, recipe = data['title'], data['recipe']
     except ValueError:
         abort(400, 'Drink data must contain title and recipe')
-
-    if not isinstance(recipe, dict):
+    if not isinstance(recipe, (list, dict)):
         abort(400, 'Recipe must be a json object')
-    print(recipe)
+    if isinstance(recipe, dict):
+        # to avoid error because different format between postman and frontend
+        recipe = [recipe]
     try:
         new_drink = Drink(
             title=title,
-            recipe=json.dumps([recipe]),
+            recipe=json.dumps(recipe),
         )
         new_drink.insert()
     except exc.IntegrityError:
