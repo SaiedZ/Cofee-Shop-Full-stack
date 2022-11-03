@@ -19,22 +19,13 @@ CORS(app)
 '''
 # db_drop_and_create_all()
 
-# ROUTES
-'''
-@TODO implement endpoint
-    GET /drinks
-        it should be a public endpoint
-        it should contain only the drink.short() data representation
-    returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
-        or appropriate status code indicating reason for failure
-'''
 
 @app.route('/drinks')
 def get_drinks():
     '''Get all the drinks.
 
-    This is a public method. Not authorization or permissions are required.
-
+    auth:
+        public method.
     retun:
         - if success:
             - status code 200
@@ -60,7 +51,27 @@ def get_drinks():
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(payload):
+    '''Get all the drinks detail.
 
+    auth:
+        require the 'get:drinks-detail' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drinks is a list of detailled description of a drink
+    '''
+    try:
+        drinks = [
+            drink.short() for drink in Drink.query.all()
+        ]
+    except Exception:
+        abort(422)
+
+    return jsonify({"success": True, "drinks": drinks})
 
 '''
 @TODO implement endpoint
@@ -138,6 +149,23 @@ def not_found(error):
         ),
         404,
     )
+
+
+@app.errorhandler(401)
+def unauthorized_error(error):
+    try:
+        message = error.description['description']
+    except Exception:
+        message = 'Unauthorized'
+    return (
+        jsonify(
+            {"success": False,
+                "error": 401,
+                "message": message}
+        ),
+        401
+    )
+
 
 '''
 @TODO implement error handler for AuthError
