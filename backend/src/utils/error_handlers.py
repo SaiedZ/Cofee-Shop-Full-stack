@@ -4,7 +4,6 @@ from flask import jsonify
 blueprint = flask.Blueprint('error_handlers', __name__)
 
 
-
 @blueprint.app_errorhandler(400)
 def bad_request(error):
     return (

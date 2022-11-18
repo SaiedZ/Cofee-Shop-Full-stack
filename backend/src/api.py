@@ -4,10 +4,10 @@ from sqlalchemy import exc
 import json
 from flask_cors import CORS
 
+from .database.models import db_drop_and_create_all, setup_db, Drink
+from .auth.auth import requires_auth
 from .utils import error_handlers
 
-from .database.models import db_drop_and_create_all, setup_db, Drink
-from .auth.auth import AuthError, requires_auth
 
 app = Flask(__name__)
 app.register_blueprint(error_handlers.blueprint)
