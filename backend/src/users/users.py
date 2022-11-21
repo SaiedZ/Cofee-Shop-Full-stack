@@ -6,6 +6,7 @@ import flask
 from flask import jsonify, abort
 
 from ..auth.auth import verify_decode_jwt
+from ..auth.auth import requires_auth
 
 users_blueprint = flask.Blueprint('users_blueprint', __name__)
 
@@ -52,7 +53,8 @@ def _get_access_token():
 
 
 @users_blueprint.route('/users')
-def get_users():
+@requires_auth('read:users')
+def get_users(payload):
 
     access_token = _get_access_token()
 
