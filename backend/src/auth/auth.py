@@ -96,7 +96,7 @@ def check_permissions(permission, payload):
 # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 
 
-def verify_decode_jwt(token):
+def verify_decode_jwt(token, auth0_domain, algorithms, audience):
     '''Verrifies if a token is valid.
 
     params:
@@ -109,7 +109,7 @@ def verify_decode_jwt(token):
         the decoded payload
     '''
 
-    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+    jsonurl = urlopen(f'https://{auth0_domain}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
@@ -132,9 +132,9 @@ def verify_decode_jwt(token):
             payload = jwt.decode(
                 token,
                 rsa_key,
-                algorithms=ALGORITHMS,
-                audience=API_AUDIENCE,
-                issuer='https://' + AUTH0_DOMAIN + '/'
+                algorithms=algorithms,
+                audience=audience,
+                issuer='https://' + auth0_domain + '/'
             )
 
             return payload
@@ -176,7 +176,10 @@ def requires_auth(permission=''):
         def wrapper(*args, **kwargs):
             try:
                 token = get_token_auth_header()
-                payload = verify_decode_jwt(token)
+                payload = verify_decode_jwt(token,
+                                            auth0_domain=AUTH0_DOMAIN,
+                                            algorithms=ALGORITHMS,
+                                            audience=API_AUDIENCE)
                 check_permissions(permission, payload)
             except AuthError as e:
                 abort(e.status_code, e.error)
