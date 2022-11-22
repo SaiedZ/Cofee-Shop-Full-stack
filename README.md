@@ -11,6 +11,7 @@
   - Allow the administrator to manage users and roles...
 - Securing a REST API
 - Applying software system risk and compliance principles
+- Testing endpoints with Postman
 
 
 ## 🔎 About the project 
