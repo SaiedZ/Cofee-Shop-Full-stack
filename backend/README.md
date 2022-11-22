@@ -170,4 +170,32 @@ The API will return three error types when requests fail:
         - if success:
             - status code 200
             - json {"success": True, "roles": data}
-                roles is a list of a given user identified by id.
+                roles (a list) of a given user identified by id.
+                
+#### GET ` /users/<str:id>/organizations `
+
+    Retrieve all organizations that the specified user is a member of.
+
+    auth:
+        require the 'read:organizations' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "organizations": data}
+                organizations that a given user is a member of.
+                
+#### GET ` /users/<str:id>/logs `
+
+    Retrieve log events for a specific user.
+
+    auth:
+        require the 'read:logs_users' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "logs": data}
+                a given user's logs events.
