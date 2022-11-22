@@ -30,6 +30,11 @@ The `./backend` directory contains a Flask server with SQLAlchemy module to simp
 
 [View the README.md within ./backend for more details.](./backend/README.md)
 
+
+### 📖 API Documentation
+
+[Link for documenation](https://github.com/SaiedZ/Cofee-Shop-Full-stack/blob/master/backend/README.md#-api-reference)
+
 ### 💻 Frontend 
 
 The `./frontend` directory contains a complete Ionic frontend to consume the data from the Flask server. 
