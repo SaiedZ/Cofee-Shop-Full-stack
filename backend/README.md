@@ -71,6 +71,103 @@ Errors are returned as JSON objects in the following format:
 The API will return three error types when requests fail:
 
 - 400: Bad Request
-- 404: {Resource} Not Found (Ressource is relplaced by the model's name: Category, Question...)
+- 404: Resource Not Found
 - 422: Not Processable
 - 500: Internal Server Error 
+
+### ☕ Drinks endpoints
+
+#### GET ` /drinks `
+
+    Get all the drinks.
+    
+    auth:
+        public method.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drinks is a list of short description of a drink
+        -if fail:
+            - status code 422
+            
+#### GET ` /drinks-detail `
+ 
+    Get all the drinks detail.
+
+    auth:
+        require the 'get:drinks-detail' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drinks is a list of detailled description of a drink
+
+#### POST ` /drinks `
+
+    Creates a new drink.
+
+    auth:
+        requires the 'post:drinks' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drink an array containing only the newly created drink
+                with drink.long() data representation
+                
+#### PATCH ` /drinks/<int:id> `
+
+    Updates an existing drink base on the id.
+
+    auth:
+        requires the 'patch:drinks' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "drinks": drinks}
+                drink an array containing only the newly updated drink
+                with drink.long() data representation
+        - 404 if id not found
+        
+#### DELETE ` /drinks/<int:id> `
+
+    Deletes an existing drink based on the id.
+
+    auth:
+        requires the 'delete:drinks' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "delete": id}
+                where id is the id of the deleted record
+        - 404 if id not found
+        
+       
+### 🤓 Users endpoints
+
+#### GET ` /users `
+
+    Retrieve details of users.
+
+    auth:
+        require the 'read:users' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "users": data}
+                users is a list of detailled description of users
+                
+#### GET ` /users/<str:id>/roles `
+
+    List the the roles associated with a user
+
+    auth:
+        require the 'read:role' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "roles": data}
+                roles is a list of a given user identified by id.
