@@ -62,10 +62,29 @@ def get_users(payload):
     url = f"https://{AUTH0_DOMAIN}/api/v2/users"
 
     response = requests.get(url, headers=headers)
-    print(response.status_code)
+
     if response.status_code != 200:
         abort(500)
 
     data = response.json()
 
-    return jsonify(data)
+    return jsonify({"success": True, "users": data})
+
+
+@users_blueprint.route('/users/<id>/roles')
+@requires_auth('read:role')
+def get_user_roles(payload, id):
+
+    access_token = _get_access_token()
+
+    headers = {'authorization': f"Bearer {access_token}"}
+    url = f"https://{AUTH0_DOMAIN}/api/v2/users/{id}/roles"
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        abort(500)
+
+    data = response.json()
+
+    return jsonify({"success": True, "roles": data})
