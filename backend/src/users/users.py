@@ -105,7 +105,7 @@ def get_user_roles(payload, id):
         - if success:
             - status code 200
             - json {"success": True, "roles": data}
-                roles is a list of a given user identified by id.
+                roles (a list) of a given user identified by id.
     '''
     access_token = _get_access_token()
 
@@ -120,3 +120,63 @@ def get_user_roles(payload, id):
     data = response.json()
 
     return jsonify({"success": True, "roles": data})
+
+
+@users_blueprint.route('/users/<id>/organizations')
+@requires_auth('read:organizations')
+def get_user_organizations(payload, id):
+    '''Retrieve all organizations that the specified user is a member of.
+
+    auth:
+        require the 'read:organizations' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "organizations": data}
+                organizations that a given user is a member of.
+    '''
+    access_token = _get_access_token()
+
+    headers = {'authorization': f"Bearer {access_token}"}
+    url = f"https://{AUTH0_DOMAIN}/api/v2/users/{id}/organizations"
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        abort(500)
+
+    data = response.json()
+
+    return jsonify({"success": True, "organizations": data})
+
+
+@users_blueprint.route('/users/<id>/logs')
+@requires_auth('read:logs_users')
+def get_user_logs_events(payload, id):
+    '''Retrieve log events for a specific user.
+
+    auth:
+        require the 'read:logs_users' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "logs": data}
+                a given user's logs events.
+    '''
+    access_token = _get_access_token()
+
+    headers = {'authorization': f"Bearer {access_token}"}
+    url = f"https://{AUTH0_DOMAIN}/api/v2/users/{id}/logs"
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        abort(500)
+
+    data = response.json()
+
+    return jsonify({"success": True, "logs": data})
