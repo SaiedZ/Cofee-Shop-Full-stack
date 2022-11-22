@@ -18,6 +18,12 @@ AUDIENCE_MANAGEMENT_API = os.getenv("AUDIENCE_MANAGEMENT_API")
 
 
 def _refresh_access_token():
+    '''Refresh access token.
+
+    This is a helper method to request a new access token from auth0.
+
+    return the access token.
+    '''
 
     payload_dict = {
         "client_id": CLIENT_ID_MANAGEMENT_API,
@@ -36,7 +42,14 @@ def _refresh_access_token():
 
 
 def _get_access_token():
+    '''Get access token.
 
+    This is a helper method to get the access token from environment variables
+    if it's not valid a new token is requested from auth0 and the env variable
+    is updated.
+
+    return the access token.
+    '''
     access_token = os.getenv("AUTH0_ACCESS_TOKEN")
 
     try:
@@ -48,14 +61,22 @@ def _get_access_token():
         access_token = _refresh_access_token()
         os.environ["AUTH0_ACCESS_TOKEN"] = access_token
 
-    print(access_token)
     return access_token
 
 
 @users_blueprint.route('/users')
 @requires_auth('read:users')
 def get_users(payload):
+    '''Retrieve details of users.
 
+    auth:
+        require the 'read:users' permission
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "users": data}
+                users is a list of detailled description of users
+    '''
     access_token = _get_access_token()
 
     headers = {'authorization': f"Bearer {access_token}"}
@@ -74,7 +95,18 @@ def get_users(payload):
 @users_blueprint.route('/users/<id>/roles')
 @requires_auth('read:role')
 def get_user_roles(payload, id):
+    '''List the the roles associated with a user
 
+    auth:
+        require the 'read:role' permission
+    params:
+        id: a user's id.
+    retun:
+        - if success:
+            - status code 200
+            - json {"success": True, "roles": data}
+                roles is a list of a given user identified by id.
+    '''
     access_token = _get_access_token()
 
     headers = {'authorization': f"Bearer {access_token}"}
